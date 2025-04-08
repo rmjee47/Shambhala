@@ -1,105 +1,149 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Shambhala Greeting Generator</title>
+  <title>Welcome to Shambhala</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
       margin: 0;
       font-family: 'Georgia', serif;
-      background: #000;
+      background-color: #000;
       color: #fff;
       display: flex;
-      justify-content: center;
-      align-items: center;
       flex-direction: column;
-      min-height: 100vh;
-    }.container {
-  text-align: center;
-  width: 100%;
-  max-width: 700px;
-  padding: 20px;
-}
+      align-items: center;
+      padding: 30px;
+    }
 
-.input-card {
-  margin-bottom: 30px;
-}
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
 
-.input-card input {
-  padding: 10px;
-  width: 70%;
-  max-width: 300px;
-  font-size: 16px;
-  margin: 10px 0;
-}
+    .input-container {
+      margin-bottom: 30px;
+    }
 
-.input-card button {
-  padding: 10px 20px;
-  background-color: #fff;
-  color: #000;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-}
+    input {
+      padding: 10px;
+      font-size: 16px;
+      width: 250px;
+      margin-right: 10px;
+    }
 
-.card-output {
-  position: relative;
-  display: none;
-}
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: #fff;
+      color: #000;
+      border: none;
+      cursor: pointer;
+      margin: 10px 5px;
+    }
 
-.card-output img#cardBg {
-  width: 100%;
-  border-radius: 12px;
-}
+    .card {
+      position: relative;
+      text-align: center;
+      max-width: 700px;
+      margin-top: 20px;
+      display: none;
+    }
 
-.card-text {
-  position: absolute;
-  top: 20%;
-  left: 10%;
-  right: 10%;
-  color: #fff;
-  text-shadow: 0 0 6px #000;
-}
+    .card img.bg {
+      width: 100%;
+      border-radius: 10px;
+    }
 
-.card-text h2 {
-  font-size: 28px;
-  margin-bottom: 15px;
-}
+    .logo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 100px;
+      opacity: 0.9;
+    }
 
-.card-text p {
-  font-size: 16px;
-}
+    .text-overlay {
+      position: absolute;
+      top: 20%;
+      left: 10%;
+      right: 10%;
+      color: #fff;
+      text-shadow: 0 0 8px #000;
+    }
 
-.logo {
-  width: 80px;
-  margin-top: 20px;
-}
+    .text-overlay h2 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
 
+    .text-overlay p {
+      font-size: 16px;
+      font-style: italic;
+    }
+
+    .download-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="input-card">
-      <h1>Welcome to Shambhala</h1>
-      <input type="text" id="nameInput" placeholder="Enter your name" />
-      <button onclick="generateCard()">Generate Card</button>
-    </div>
-    <div class="card-output" id="cardOutput">
-      <img src="dojo.png" alt="Shambhala Background" id="cardBg"/>
-      <div class="card-text">
-        <h2 id="cardName">Welcome, and warm greetings.</h2>
-        <p>You are now part of a path that’s ancient, disciplined, and eternal.<br><strong>This is Shambhala</strong></p>
-        <img src="IMG-20250405-WA0028.jpg" class="logo" />
-      </div>
+  <h1>Welcome to Shambhala</h1>
+  <div class="input-container">
+    <input type="text" id="nameInput" placeholder="Enter your name" />
+    <button onclick="generateCard()">Generate Card</button>
+  </div>
+
+  <div class="card" id="card">
+    <img class="bg" src="dojo.png" alt="Shambhala Background" />
+    <img class="logo" src="" alt="Shambhala Logo" />
+    <div class="text-overlay">
+      <h2 id="cardTitle">Welcome, and warm greetings.</h2>
+      <p>You are now part of a path that’s both modern, traditional, disciplined, and eternal.<br><strong> We will be running soon, so feel comfortable. This is yours Shambhala.</strong></p>
     </div>
   </div>
+
+  <div class="download-buttons" id="downloadButtons" style="display:none;">
+    <button onclick="downloadAsJPG()">Download JPG</button>
+    <button onclick="downloadAsPDF()">Download PDF</button>
+  </div>
+
   <script>
     function generateCard() {
       const name = document.getElementById('nameInput').value.trim();
       if (name) {
-        document.getElementById('cardName').innerText = `Welcome, ${name}.`;
-        document.getElementById('cardOutput').style.display = 'block';
+        document.getElementById('cardTitle').innerText = `Welcome, ${name}.`;
+        document.getElementById('card').style.display = 'block';
+        document.getElementById('downloadButtons').style.display = 'flex';
       }
+    }
+
+    function downloadAsJPG() {
+      html2canvas(document.getElementById("card")).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "shambhala-card.jpg";
+        link.href = canvas.toDataURL("image/jpeg");
+        link.click();
+      });
+    }
+
+    async function downloadAsPDF() {
+      const { jsPDF } = window.jspdf;
+      html2canvas(document.getElementById("card")).then(canvas => {
+        const imgData = canvas.toDataURL("image/jpeg");
+        const pdf = new jsPDF();
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save("shambhala-card.pdf");
+      });
     }
   </script>
 </body>
